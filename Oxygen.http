@@ -1,0 +1,6 @@
+@Oxygen_HostAddress = http://localhost:5030
+
+GET {{Oxygen_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
