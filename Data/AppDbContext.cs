@@ -5,7 +5,8 @@ namespace Oxygen.Data
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options)
+        public AppDbContext(
+            DbContextOptions<AppDbContext> options)
             : base(options)
         {
         }
@@ -17,5 +18,21 @@ namespace Oxygen.Data
         public DbSet<Interaction> Interactions { get; set; }
 
         public DbSet<CTA> CTAs { get; set; }
+
+        protected override void OnModelCreating(
+            ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>()
+                .ToTable("users");
+
+            modelBuilder.Entity<Visitor>()
+                .ToTable("visitors");
+
+            modelBuilder.Entity<Interaction>()
+                .ToTable("interactions");
+
+            modelBuilder.Entity<CTA>()
+                .ToTable("ctas");
+        }
     }
 }
