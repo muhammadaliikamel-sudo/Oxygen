@@ -1,16 +1,44 @@
-﻿namespace Oxygen.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Oxygen.Models
 {
-    public class Visitor : BaseEntity
+    [Table("visitors")]
+    public class Visitor
     {
-        public required string Name { get; set; }
+        [Column("id")]
+        public Guid Id { get; set; }
 
-        public required string email { get; set; }
-        public required string Phone { get; set; }
+        [Column("full_name")]
+        public string? FullName { get; set; }
 
-        public required string Company { get; set; }
+        [Column("email")]
+        public string? Email { get; set; }
 
-        public required string category { get; set; }
+        [Column("phone")]
+        public string? Phone { get; set; }
 
-        public required string Source { get; set; }
+        [Column("category")]
+        public string? Category { get; set; }
+
+        [Column("source")]
+        public string? Source { get; set; }
+
+        [Column("language")]
+        public string? Language { get; set; }
+
+        [Column("created_by")]
+        public Guid? CreatedBy { get; set; }
+
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; }
+
+        [Column("updated_at")]
+        public DateTime? UpdatedAt { get; set; }
+
+        [Column("is_deleted")]
+        public bool IsDeleted { get; set; } = false;
+
+        [Column("password_hash")]
+        public string? PasswordHash { get; set; }
     }
 }

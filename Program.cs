@@ -1,19 +1,23 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
-using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
+using Microsoft.OpenApi.Models;
 using Oxygen.Data;
 using Oxygen.Interfaces;
 using Oxygen.Services;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Database Connection  
+//Database Connection
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // JWT Authentication
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme =
@@ -44,37 +48,81 @@ builder.Services.AddAuthentication(options =>
             IssuerSigningKey =
                 new SymmetricSecurityKey(
                     Encoding.UTF8.GetBytes(
-                        builder.Configuration["Jwt:Key"]))
+                        builder.Configuration["Jwt:Key"]!))
         };
 });
 
+
 // Dependency Injection
+
 builder.Services.AddScoped<IAuthService, AuthService>();
-// Add services to the container.
-builder.Services.AddControllers();  
+
+builder.Services.AddScoped<IVisitorService, VisitorService>();
+
+// Controllers
+
+builder.Services.AddControllers();
 
 // Swagger
+
+
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1",
+        new OpenApiInfo
+        {
+            Title = "Oxygen API",
+            Version = "v1"
+        });
+    options.AddSecurityDefinition("Bearer",
+        new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+
+            Type = SecuritySchemeType.Http,
+
+            Scheme = "bearer",
+
+            BearerFormat = "JWT",
+
+            In = ParameterLocation.Header,
+
+            Description =
+                "Enter JWT Token"
+        });
+
+    options.AddSecurityRequirement(
+        new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference =
+                        new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                },
+                Array.Empty<string>()
+            }
+        });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// HTTP Request Pipeline
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
 
     app.UseSwaggerUI();
 }
-
 app.UseHttpsRedirection();
-
-// Authentication
 app.UseAuthentication();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

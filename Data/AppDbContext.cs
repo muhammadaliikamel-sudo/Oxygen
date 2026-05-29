@@ -33,6 +33,60 @@ namespace Oxygen.Data
 
             modelBuilder.Entity<CTA>()
                 .ToTable("ctas");
+
+            // User
+            modelBuilder.Entity<User>()
+                .Property(u => u.FullName)
+                .HasColumnName("full_name");
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.PasswordHash)
+                .HasColumnName("password_hash");
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.IsActive)
+                .HasColumnName("is_active");
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.LastLogin)
+                .HasColumnName("last_login");
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.CreatedAt)
+                .HasColumnName("created_at");
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.UpdatedAt)
+                .HasColumnName("updated_at");
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.IsDeleted)
+                .HasColumnName("is_deleted");
+
+            // Visitor
+            modelBuilder.Entity<Visitor>()
+                .Property(v => v.FullName)
+                .HasColumnName("full_name");
+
+            modelBuilder.Entity<Visitor>()
+                .Property(v => v.CreatedBy)
+                .HasColumnName("created_by");
+
+            modelBuilder.Entity<Visitor>()
+                .Property(v => v.PasswordHash)
+                .HasColumnName("password_hash");
+
+            modelBuilder.Entity<Visitor>()
+                .Property(v => v.CreatedAt)
+                .HasColumnName("created_at");
+
+            modelBuilder.Entity<Visitor>()
+                .Property(v => v.UpdatedAt)
+                .HasColumnName("updated_at");
+
+            modelBuilder.Entity<Visitor>()
+                .Property(v => v.IsDeleted)
+                .HasColumnName("is_deleted");
         }
     }
 }
