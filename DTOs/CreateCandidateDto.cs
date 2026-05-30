@@ -10,4 +10,7 @@ public class CreateCandidateDto
     public string Skills { get; set; } = string.Empty;
     public string PreferredLocation { get; set; } = string.Empty;
     public string? Status { get; set; }
+    public Guid? ResumeDocumentId { get; set; }
+    public Guid? VisitorId { get; set; }
+    public List<CandidateAnswerDto> Answers { get; set; } = new();
 }

@@ -11,9 +11,9 @@ public class Candidate
     public string Skills { get; set; } = string.Empty;
     public string PreferredLocation { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
-    public long ResumeDocumentId { get; set; }
+    public Guid? ResumeDocumentId { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
-    public Guid VisitorId { get; set; }
+    public Guid? VisitorId { get; set; }
     public bool IsDeleted { get; set; }
 }

@@ -11,4 +11,6 @@ public class CandidateResponseDto
     public string Skills { get; set; } = string.Empty;
     public string PreferredLocation { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
+    public Guid? ResumeDocumentId { get; set; }
+    public Guid? VisitorId { get; set; }
 }
