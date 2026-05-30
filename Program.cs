@@ -56,8 +56,8 @@ builder.Services.AddAuthentication(options =>
 // Dependency Injection
 
 builder.Services.AddScoped<IAuthService, AuthService>();
-
 builder.Services.AddScoped<IVisitorService, VisitorService>();
+builder.Services.AddScoped<IInteractionService, InteractionService>();
 
 // Controllers
 

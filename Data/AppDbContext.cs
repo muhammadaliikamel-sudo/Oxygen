@@ -87,6 +87,34 @@ namespace Oxygen.Data
             modelBuilder.Entity<Visitor>()
                 .Property(v => v.IsDeleted)
                 .HasColumnName("is_deleted");
+            //interactions 
+            modelBuilder.Entity<Interaction>()
+                .Property(i => i.Id)
+                .HasColumnName("id");
+            modelBuilder.Entity<Interaction>()
+                .Property(i => i.VisitorId)
+                .HasColumnName("visitor_id");
+            modelBuilder.Entity<Interaction>()
+                .Property(i => i.Notes)
+                .HasColumnName("notes");
+            modelBuilder.Entity<Interaction>()
+                .Property(i => i.Type)
+                .HasColumnName("type");
+            modelBuilder.Entity<Interaction>()
+                .Property(i => i.DurationMinutes)
+                .HasColumnName("duration_minutes");
+            modelBuilder.Entity<Interaction>()
+                .Property(i => i.CreatedBy)
+                .HasColumnName("created_by");
+            modelBuilder.Entity<Interaction>()
+                .Property(i => i.CreatedAt)
+                .HasColumnName("created_at");
+            modelBuilder.Entity<Interaction>()
+                .Property(i => i.UpdatedAt)
+                .HasColumnName("updated_at");
+            modelBuilder.Entity<Interaction>()
+                .Property(i => i.IsDeleted)
+                .HasColumnName("is_deleted");
         }
     }
 }

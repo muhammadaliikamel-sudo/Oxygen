@@ -1,7 +1,9 @@
-﻿namespace Oxygen.Models
+﻿namespace Oxygen.DTOs.Interaction
 {
-    public class Interaction : BaseEntity
+    public class InteractionResponseDto
     {
+        public Guid Id { get; set; }
+
         public Guid? VisitorId { get; set; }
 
         public string? Type { get; set; }
@@ -11,5 +13,7 @@
         public int? DurationMinutes { get; set; }
 
         public Guid? CreatedBy { get; set; }
+
+        public DateTime CreatedAt { get; set; }
     }
-}   
+}
