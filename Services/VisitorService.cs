@@ -9,11 +9,12 @@ namespace Oxygen.Services
     public class VisitorService : IVisitorService
     {
         private readonly AppDbContext _context;
+        private readonly IAuditLogService _auditLogService;
 
-        public VisitorService(AppDbContext context)
-        {
-            _context = context;
-        }
+        public VisitorService(AppDbContext context, IAuditLogService auditLogService)
+        {_context = context;_auditLogService = auditLogService;}
+
+
         // Create 
         public async Task<VisitorResponseDto> CreateAsync(
             CreateVisitorDto dto)
@@ -44,6 +45,7 @@ namespace Oxygen.Services
             _context.Visitors.Add(visitor);
 
             await _context.SaveChangesAsync();
+            await _auditLogService.CreateAsync(null,"Visitor",visitor.Id,"CREATE",null,System.Text.Json.JsonSerializer.Serialize(visitor),null);
 
             return new VisitorResponseDto
             {
@@ -131,10 +133,8 @@ namespace Oxygen.Services
                 Guid id,
                 UpdateVisitorDto dto)
         {
-            var visitor = await _context.Visitors
-                .FirstOrDefaultAsync(v =>
-                    v.Id == id &&
-                    !v.IsDeleted);
+            var visitor = await _context.Visitors.FirstOrDefaultAsync(v =>v.Id == id &&!v.IsDeleted);
+            var oldValue =System.Text.Json.JsonSerializer.Serialize(visitor);
 
             if (visitor == null)
             {
@@ -156,6 +156,7 @@ namespace Oxygen.Services
             visitor.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+            await _auditLogService.CreateAsync(null,"Visitor",visitor.Id,"UPDATE",oldValue,System.Text.Json.JsonSerializer.Serialize(visitor),null);
 
             return new VisitorResponseDto
             {
@@ -179,10 +180,8 @@ namespace Oxygen.Services
         // Delete 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            var visitor = await _context.Visitors
-                .FirstOrDefaultAsync(v =>
-                    v.Id == id &&
-                    !v.IsDeleted);
+            var visitor = await _context.Visitors.FirstOrDefaultAsync(v =>v.Id == id &&!v.IsDeleted);
+            var oldValue =System.Text.Json.JsonSerializer.Serialize(visitor);
 
             if (visitor == null)
             {
@@ -194,6 +193,7 @@ namespace Oxygen.Services
             visitor.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+            await _auditLogService.CreateAsync(null,"Visitor",visitor.Id,"DELETE",oldValue,null,null);
 
             return true;
         }

@@ -14,7 +14,8 @@ namespace Oxygen.Data
         public DbSet<Visitor> Visitors { get; set; }
         public DbSet<Interaction> Interactions { get; set; }
         public DbSet<CTA> CTAs { get; set; }
-
+        public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -75,6 +76,34 @@ namespace Oxygen.Data
                 entity.Property(c => c.SLAState).HasColumnName("sla_state");
                 entity.Property(c => c.IsDeleted).HasColumnName("is_deleted");
             });
+            //audit log
+            modelBuilder.Entity<AuditLog>(entity =>
+            {
+                entity.ToTable("audit_logs");
+                entity.Property(a => a.Id).HasColumnName("id");
+                entity.Property(a => a.UserId).HasColumnName("user_id");
+                entity.Property(a => a.EntityType).HasColumnName("entity_type");
+                entity.Property(a => a.EntityId).HasColumnName("entity_id");
+                entity.Property(a => a.Action).HasColumnName("action");
+                entity.Property(a => a.OldValue).HasColumnName("old_value").HasColumnType("jsonb");
+                entity.Property(a => a.NewValue).HasColumnName("new_value").HasColumnType("jsonb");
+                entity.Property(a => a.IpAddress).HasColumnName("ip_address");
+                entity.Property(a => a.CreatedAt).HasColumnName("created_at").HasColumnType("timestamp with time zone");
+            });
+            //notification
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.ToTable("notifications");
+                entity.Property(n => n.Id).HasColumnName("id");
+                entity.Property(n => n.UserId).HasColumnName("user_id");
+                entity.Property(n => n.Title).HasColumnName("title");
+                entity.Property(n => n.Message).HasColumnName("message");
+                entity.Property(n => n.Type).HasColumnName("type");
+                entity.Property(n => n.IsRead).HasColumnName("is_read");
+                entity.Property(n => n.CreatedAt).HasColumnName("created_at").HasColumnType("timestamp with time zone");
+            });
+
+
         }
 
         //  AUTO AUDIT
@@ -114,5 +143,6 @@ namespace Oxygen.Data
 
             return await base.SaveChangesAsync(cancellationToken);
         }
+
     }
 }

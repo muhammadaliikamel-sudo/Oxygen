@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 using Oxygen.Data;
+//using Oxygen.DTOs.Public;
 using Oxygen.Interfaces;
 using Oxygen.Services;
 using System.Text;
@@ -59,6 +60,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IVisitorService, VisitorService>();
 builder.Services.AddScoped<IInteractionService, InteractionService>();
 builder.Services.AddScoped<ICTAService, CTAService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<INotificationService,NotificationService>();
+//builder.Services.AddScoped<IPublicService, PublicService>();
 
 // Controllers
 

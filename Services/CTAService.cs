@@ -9,11 +9,12 @@ namespace Oxygen.Services
     public class CTAService : ICTAService
     {
         private readonly AppDbContext _context;
+        private readonly IAuditLogService _auditLogService;
+        private readonly INotificationService _notificationService;
+        public CTAService(AppDbContext context, IAuditLogService auditLogService, INotificationService notificationService)
+        {_context = context;_auditLogService = auditLogService;_notificationService = notificationService;}
 
-        public CTAService(AppDbContext context)
-        {
-            _context = context;
-        }
+
         // CREATE
         public async Task<CTAResponseDto> CreateAsync(CreateCTADto dto)
         {
@@ -45,9 +46,27 @@ namespace Oxygen.Services
             };
             _context.CTAs.Add(cta);
             await _context.SaveChangesAsync();
+            await _auditLogService.CreateAsync(null,"CTA",cta.Id,"CREATE",null,System.Text.Json.JsonSerializer.Serialize(cta),null);
+            if (cta.DueDate.HasValue)
+            {
+                var hoursLeft =(cta.DueDate.Value - DateTime.UtcNow).TotalHours;
+
+                if (hoursLeft <= 24)
+                {
+                    await _notificationService.CreateAsync(
+                        new CreateNotificationDto
+                        {
+                            UserId = cta.OwnerId,
+                            Title = "CTA Reminder",
+                            Message =$"CTA '{cta.Type}' is due soon.",
+                            Type = "Reminder"
+                        });
+                }
+            }
             return MapToResponse(cta);
         }
         // GET 
+
         public async Task<List<CTAResponseDto>> GetAllAsync()
         {
             return await _context.CTAs.Where(c => !c.IsDeleted).Select(c => MapToResponse(c)).ToListAsync();
@@ -64,13 +83,26 @@ namespace Oxygen.Services
         public async Task<CTAResponseDto> UpdateAsync(Guid id, UpdateCTADto dto)
         {
             var cta = await _context.CTAs.FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
+            var oldValue =System.Text.Json.JsonSerializer.Serialize(cta);
             if (cta == null)throw new Exception("CTA not found");
             cta.Type = dto.Type;
             cta.Status = dto.Status;
             if (dto.DueDate.HasValue)cta.DueDate = dto.DueDate.Value;
             cta.UpdatedAt = DateTime.UtcNow;
             cta.SLAState = CalculateSlaState(cta.Status, cta.DueDate);
+            if (cta.SLAState == "overdue")
+            {
+                await _notificationService.CreateAsync(
+                    new CreateNotificationDto
+                    {
+                        UserId = cta.OwnerId,
+                        Title = "CTA Overdue",
+                        Message =$"CTA '{cta.Type}' is overdue.",
+                        Type = "Overdue"
+                    });
+            }
             await _context.SaveChangesAsync();
+            await _auditLogService.CreateAsync( null, "CTA", cta.Id, "UPDATE", oldValue, System.Text.Json.JsonSerializer.Serialize(cta), null);
             return MapToResponse(cta);
         }
         // DELETE
@@ -78,9 +110,11 @@ namespace Oxygen.Services
         {
             var cta = await _context.CTAs.FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
             if (cta == null)throw new Exception("CTA not found");
+            var oldValue =System.Text.Json.JsonSerializer.Serialize(cta);
             cta.IsDeleted = true;
             cta.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
+            await _auditLogService.CreateAsync(null,"CTA", cta.Id,"DELETE",oldValue,null,null);
             return true;
         }
 

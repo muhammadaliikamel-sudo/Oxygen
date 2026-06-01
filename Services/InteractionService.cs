@@ -9,10 +9,11 @@ namespace Oxygen.Services
     public class InteractionService : IInteractionService
     {
         private readonly AppDbContext _context;
+        private readonly IAuditLogService _auditLogService;
 
-        public InteractionService(AppDbContext context)
+        public InteractionService(AppDbContext context, IAuditLogService auditLogService)
         {
-            _context = context;
+            _context = context;_auditLogService = auditLogService;
         }
         // Create 
         public async Task<InteractionResponseDto> CreateAsync(
@@ -38,6 +39,7 @@ namespace Oxygen.Services
             _context.Interactions.Add(interaction);
 
             await _context.SaveChangesAsync();
+            await _auditLogService.CreateAsync(null,"Interaction",interaction.Id,"CREATE",null,System.Text.Json.JsonSerializer.Serialize(interaction),null);
 
             return new InteractionResponseDto
             {
@@ -118,14 +120,12 @@ namespace Oxygen.Services
                 Guid id,
                 UpdateInteractionDto dto)
         {
-            var interaction =
-                await _context.Interactions
-                .FirstOrDefaultAsync(i => i.Id == id);
+            var interaction =await _context.Interactions.FirstOrDefaultAsync(i => i.Id == id);
+            var oldValue =System.Text.Json.JsonSerializer.Serialize(interaction);
 
             if (interaction == null)
             {
-                throw new Exception(
-                    "Interaction not found");
+                throw new Exception("Interaction not found");
             }
 
             interaction.Type = dto.Type;
@@ -139,6 +139,7 @@ namespace Oxygen.Services
                 DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+            await _auditLogService.CreateAsync(null,"Interaction",interaction.Id,"UPDATE",oldValue,System.Text.Json.JsonSerializer.Serialize(interaction),null);
 
             return new InteractionResponseDto
             {
@@ -150,8 +151,7 @@ namespace Oxygen.Services
 
                 Notes = interaction.Notes,
 
-                DurationMinutes =
-                    interaction.DurationMinutes,
+                DurationMinutes =interaction.DurationMinutes,
 
                 CreatedBy = interaction.CreatedBy,
 
@@ -161,20 +161,18 @@ namespace Oxygen.Services
         // Delete
         public async Task<bool> DeleteAsync(Guid id)
         {
-            var interaction =
-                await _context.Interactions
-                .FirstOrDefaultAsync(i => i.Id == id);
+            var interaction =await _context.Interactions.FirstOrDefaultAsync(i => i.Id == id);
+            var oldValue =System.Text.Json.JsonSerializer.Serialize(interaction);
 
             if (interaction == null)
             {
-                throw new Exception(
-                    "Interaction not found");
+                throw new Exception("Interaction not found");
             }
 
-            _context.Interactions.Remove(
-                interaction);
+            _context.Interactions.Remove(interaction);
 
             await _context.SaveChangesAsync();
+            await _auditLogService.CreateAsync(null,"Interaction",interaction.Id,"DELETE",oldValue,null,null);
 
             return true;
         }
